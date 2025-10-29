@@ -2,6 +2,8 @@ plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
+    //Navegacion
+    alias(libs.plugins.kotlin.serialization)
 }
 
 android {
@@ -40,6 +42,10 @@ android {
 }
 
 dependencies {
+
+    //Navegacion
+    implementation(libs.androidx.navigation.compose)
+    implementation(libs.kotlinx.serialization.json)
 
     //Coil carga imagen desde url
     implementation("io.coil-kt.coil3:coil-compose:3.1.0")
