@@ -1,5 +1,7 @@
 package com.example.proyect_final.ui.screens
 
+import android.util.Log
+import android.widget.Toast
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -16,7 +18,14 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
+import com.example.proyect_final.data.UsuarioRegister
+import com.example.proyect_final.data.Usuario
+import com.example.proyect_final.network.RetrofitClient
+import retrofit2.Call
+import retrofit2.Callback
+import retrofit2.Response
 
 @Composable
 fun RegisterScreen() {
@@ -26,6 +35,9 @@ fun RegisterScreen() {
     var registerEmail by remember { mutableStateOf("") }
     var registerPass by remember { mutableStateOf("") }
     var registerPhone by remember { mutableStateOf("") }
+
+    val context = LocalContext.current
+
 
     Box(modifier = Modifier
         .fillMaxSize()
@@ -80,7 +92,32 @@ fun RegisterScreen() {
                         .padding(4.dp)
                 )
             }
-            Button(onClick = {}, modifier = Modifier
+            Button(onClick = {
+                RetrofitClient.apiService.postRegister(
+                    UsuarioRegister(
+                        nombre = registerName,
+                        apellido = registerLastName,
+                        email = registerEmail,
+                        password = registerPass,
+                        telefono = registerPhone.toInt()
+                    )
+                ).enqueue(object : Callback<Usuario> {
+                    override fun onResponse(
+                        call: Call<Usuario>,
+                        response: Response<Usuario>
+                    ) {
+                        if (response.isSuccessful) {
+                            Toast.makeText(context, "El registro tuvo exito", Toast.LENGTH_SHORT).show()
+                            Log.d("Registro existoso", "Registro satisfactorio")
+                        } else {
+                            Log.d("Registro", "Registro no hecho: ${response.code()}")
+                        }
+                    }
+                    override fun onFailure(call: Call<Usuario>, t: Throwable) {
+                        Log.d("Registro fail", t.message.toString())
+                    }
+                })
+            }, modifier = Modifier
                 .fillMaxWidth()
                 .padding(4.dp)) {
                 Text("Registrarte")
