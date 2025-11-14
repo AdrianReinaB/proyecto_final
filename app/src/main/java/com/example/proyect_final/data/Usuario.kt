@@ -8,5 +8,18 @@ data class Usuario(
     val rol: String = "",
     val credito: Int = 0,
     val password: String = "",
-    val telefono: Int = 0,
+    val telefono: String = ""
+)
+
+data class UsuarioLogin(
+    val email: String="",
+    val password: String
+)
+
+data class UsuarioRegister(
+    val nombre: String = "",
+    val apellido: String = "",
+    val email: String = "",
+    val password: String = "",
+    val telefono: Int = 0
 )
