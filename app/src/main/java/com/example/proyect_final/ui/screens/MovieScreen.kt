@@ -32,17 +32,21 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import coil3.compose.AsyncImage
 import java.util.Date
 import java.util.Locale
-
-import androidx.compose.foundation.layout.*
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.foundation.lazy.items
+import androidx.compose.material3.Card
+import androidx.compose.material3.DatePicker
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import com.example.proyect_final.data.Producto
+import com.example.proyect_final.data.RegisterValoracion
+import com.example.proyect_final.data.RentMovie
+import com.example.proyect_final.viewModel.MovieViewModel
+import com.example.proyect_final.viewModel.UserViewModel
+import com.example.proyect_final.network.RetrofitClient
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
 import java.text.SimpleDateFormat
-import java.util.*
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable

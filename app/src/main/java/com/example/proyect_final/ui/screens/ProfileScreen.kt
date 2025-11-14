@@ -3,6 +3,7 @@ package com.example.proyect_final.ui.screens
 import android.util.Log
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
@@ -24,6 +25,8 @@ import com.example.proyect_final.data.RentMovieUser
 import com.example.proyect_final.data.Usuario
 import com.example.proyect_final.data.UsuarioRegister
 import com.example.proyect_final.data.ValoracionUser
+import com.example.proyect_final.network.RetrofitClient
+import com.example.proyect_final.viewModel.UserViewModel
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
