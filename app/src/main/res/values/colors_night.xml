@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="md_theme_dark_primary">#5472D3</color>
+    <color name="md_theme_dark_onPrimary">#000000</color>
+
+    <color name="md_theme_dark_secondary">#FFD95F</color>
+    <color name="md_theme_dark_onSecondary">#000000</color>
+
+    <color name="md_theme_dark_background">#0A0A0A</color>
+    <color name="md_theme_dark_onBackground">#E5E5E5</color>
+
+    <color name="md_theme_dark_surface">#121212</color>
+    <color name="md_theme_dark_onSurface">#E5E5E5</color>
+
+    <color name="md_theme_dark_outline">#444444</color>
+
+    <color name="md_theme_dark_offset">#0D47A1</color>
+<!--    /////////////////////////////////////////////////////////-->
+    <color name="successDark">#81C784</color>
+    <color name="onSuccessDark">#00390F</color>
+    <color name="successContainerDark">#1B5E20</color>
+    <color name="onSuccessContainerDark">#A5D6A7</color>
+
+    <color name="warningDark">#FFB74D</color>
+    <color name="onWarningDark">#4A2600</color>
+    <color name="warningContainerDark">#E65100</color>
+    <color name="onWarningContainerDark">#FFB74D</color>
+
+    <color name="alertDark">#EF9A9A</color>
+    <color name="onAlertDark">#5A0000</color>
+    <color name="alertContainerDark">#B71C1C</color>
+    <color name="onAlertContainerDark">#FFCDD2</color>
+</resources>

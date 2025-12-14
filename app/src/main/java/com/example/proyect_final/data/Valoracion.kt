@@ -1,5 +1,8 @@
 package com.example.proyect_final.data
 
+import java.time.LocalDate
+import java.util.Date
+
 data class Valoracion(
     val id_valoracion: Int = 0,
     val puntuacion: Int = 0,
@@ -19,7 +22,7 @@ data class RegisterValoracion(
 data class ValoracionUser(
     val id_valoracion: Int = 0,
     val puntuacion: Int = 0,
-    val fecha: String = "",
+    val fecha: String = "" ,
     val comentario: String = "",
     val usuario_id_usuario: Int = 0,
     val pelicula_id_pelicula: Int = 0,

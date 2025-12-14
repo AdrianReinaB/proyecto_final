@@ -5,8 +5,7 @@ import retrofit2.converter.gson.GsonConverterFactory
 
 object RetrofitClient {
 
-    private const val BASE_URL = "https://proyect-fin.vercel.app//"
-    //private const val BASE_URL = "http://192.168.1.22:3000/" //Acceso al back en local
+    private const val BASE_URL = "https://proyecto-fin-back-production.up.railway.app/"
 
     val retrofit: Retrofit by lazy {
         Retrofit.Builder()

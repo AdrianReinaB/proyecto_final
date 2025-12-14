@@ -1,7 +1,18 @@
 package com.example.proyect_final.ui.screens
 
+import android.os.Build
 import android.util.Log
-import androidx.compose.foundation.layout.*
+import android.widget.Toast
+import androidx.annotation.RequiresApi
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
@@ -10,10 +21,26 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Edit
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextField
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
@@ -21,73 +48,58 @@ import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.example.proyect_final.data.RentMovieUser
-import com.example.proyect_final.data.Usuario
-import com.example.proyect_final.data.UsuarioRegister
-import com.example.proyect_final.data.ValoracionUser
-import com.example.proyect_final.network.RetrofitClient
+import com.example.proyect_final.R
+import com.example.proyect_final.data.UsuarioUpdate
+import com.example.proyect_final.utility.isValidDni
+import com.example.proyect_final.utility.isValidEmail
+import com.example.proyect_final.utility.isValidPhone
+import com.example.proyect_final.utility.toDate
+import com.example.proyect_final.utility.toDateString
 import com.example.proyect_final.viewModel.UserViewModel
-import retrofit2.Call
-import retrofit2.Callback
-import retrofit2.Response
 
+@RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun ProfileScreen(
     userViewModel: UserViewModel,
     navigateToMovie: (Int) -> Unit,
 ) {
     var isEditing by remember { mutableStateOf(false) }
-    var opinions by remember { mutableStateOf<List<ValoracionUser>>(emptyList()) }
-    var rents by remember { mutableStateOf<List<RentMovieUser>>(emptyList()) }
-    val user = userViewModel.currentUser.value
+    val opinions by userViewModel.opinionForUser.collectAsState()
+    val rents by userViewModel.rentUser.collectAsState()
+    val us = userViewModel.currentUser.value
+    val context = LocalContext.current
 
-    var nombre by remember { mutableStateOf(user?.nombre) }
-    var apellido by remember { mutableStateOf(user?.apellido) }
-    var telefono by remember { mutableStateOf(user?.telefono ?: "") }
-    var email by remember { mutableStateOf(user?.email) }
-    var password by remember { mutableStateOf(user?.password) }
+    var nombre by remember { mutableStateOf(us?.nombre) }
+    var apellido by remember { mutableStateOf(us?.apellido) }
+    var telefono by remember { mutableStateOf(us?.telefono ?: "") }
+    var email by remember { mutableStateOf(us?.email) }
+    var password by remember { mutableStateOf("") }
+    var dni by remember { mutableStateOf(us?.dni) }
 
-    LaunchedEffect(user) {
-        user?.let {
-            RetrofitClient.apiService.getOpinionUser(it.id_usuario)
-                .enqueue(object : Callback<List<ValoracionUser>> {
-                    override fun onResponse(
-                        call: Call<List<ValoracionUser>>,
-                        response: Response<List<ValoracionUser>>
-                    ) {
-                        if (response.isSuccessful) {
-                            opinions = response.body() ?: emptyList()
-                        } else {
-                            Log.d("Peliculas", "Error ${response.code()}")
-                        }
-                    }
 
-                    override fun onFailure(call: Call<List<ValoracionUser>>, t: Throwable) {
-                        Log.e("Peliculas", "Error: ${t.message}")
-                    }
-                })
-            RetrofitClient.apiService.getRentUser(it.id_usuario)
-                .enqueue(object : Callback<List<RentMovieUser>> {
-                    override fun onResponse(
-                        call: Call<List<RentMovieUser>>,
-                        response: Response<List<RentMovieUser>>
-                    ) {
-                        if (response.isSuccessful) {
-                            rents = response.body() ?: emptyList()
-                        } else {
-                            Log.d("Peliculas", "Error ${response.code()}")
-                        }
-                    }
+    var isValidDNI by remember { mutableStateOf(false) }
+    var isValidMail by remember { mutableStateOf(false) }
+    var isValidTelefono by remember { mutableStateOf(false) }
 
-                    override fun onFailure(call: Call<List<RentMovieUser>>, t: Throwable) {
-                        Log.e("Peliculas", "Error: ${t.message}")
-                    }
-                })
+    val allValid =
+        (nombre?.isNotBlank() == true && nombre!!.all { it.isLetter() || it.isWhitespace() }) &&
+                (apellido?.isNotBlank() == true && apellido!!.all { it.isLetter() || it.isWhitespace() }) &&
+                dni?.let { isValidDni(it) } == true &&
+                email?.let { isValidEmail(it) } == true &&
+                isValidPhone(telefono) &&
+                (password.isEmpty() || password.length >= 8)
+
+
+
+    LaunchedEffect(Unit) {
+        us?.let {
+            userViewModel.reloadCurrentUser()
+            userViewModel.loadOpinionForUser(it.id_usuario)
+            userViewModel.loadRentUserMovie(it.id_usuario)
         }
 
     }
 
-    Log.d("User_id", user.toString())
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -97,13 +109,14 @@ fun ProfileScreen(
     ) {
         Row {
             Text(
-                text = "Perfil de Usuario",
+                text = stringResource(R.string.Pefil_usuario),
                 fontSize = 26.sp,
                 fontWeight = FontWeight.Bold,
-                modifier = Modifier.padding(bottom = 16.dp)
+                modifier = Modifier.padding(bottom = 16.dp),
+                color = MaterialTheme.colorScheme.primary
             )
             IconButton(onClick = { isEditing = !isEditing }) {
-                Icon(imageVector = Icons.Default.Edit, contentDescription = "")
+                Icon(imageVector = Icons.Default.Edit, contentDescription = "", tint = MaterialTheme.colorScheme.secondary)
             }
         }
 
@@ -113,31 +126,69 @@ fun ProfileScreen(
             colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant)
         ) {
             Column(modifier = Modifier.padding(16.dp)) {
-                nombre?.let { EditableField("Nombre", it, isEditing) { nombre = it } }
-                apellido?.let { EditableField("Apellido", it, isEditing) { apellido = it } }
-                EditableField(
-                    "Teléfono", telefono, isEditing, keyboardType = KeyboardType.Number
-                ) { telefono = it }
-                email?.let { EditableField("Email", it, isEditing) { email = it } }
-                password?.let {
                     EditableField(
-                        "Contraseña", it, isEditing, isPassword = true
-                    ) { password = it }
-                }
+                        stringResource(R.string.Nombre),
+                        nombre!!,
+                        isEditing,
+                        isError = !nombre!!.all { name -> name.isLetter() || name.isWhitespace()} || nombre!!.isEmpty()
+                    ) { nombre = it }
 
-                if (user != null) {
+                    EditableField(
+                        stringResource(R.string.Apellido),
+                        apellido!!,
+                        isEditing,
+                        isError = !apellido!!.all { lastName -> lastName.isLetter() || lastName.isWhitespace() } || apellido!!.isEmpty()
+                    ) { apellido = it }
+
+                EditableField(
+                    stringResource(R.string.Telefono),
+                    telefono,
+                    isEditing,
+                    isError = !isValidTelefono && telefono.isNotEmpty(),
+                    keyboardType = KeyboardType.Number
+                ) { telefono = it
+                    isValidTelefono = isValidPhone(telefono)
+                }
+                    EditableField(
+                        stringResource(R.string.DNI),
+                        dni!!,
+                        isEditing,
+                        isError = !isValidDNI && dni!!.isNotEmpty(),
+                        )
+                    {
+                        dni = it
+                        isValidDNI = isValidDni(dni!!)
+                    }
+
+                    EditableField(stringResource(R.string.Email),
+                        email!!,
+                        isEditing,
+                        isError = !isValidMail && email!!.isNotEmpty()
+                    )
+                    {
+                        email = it
+                        isValidMail = isValidEmail(email!!)
+                    }
+
+                    EditableField(
+                        stringResource(R.string.Contrasenia),
+                        password,
+                        isEditing,
+                        isPassword = true,
+                        isError = password.isNotEmpty() && password.length < 8
+                    ) { password = it }
+
+
+                if (us != null) {
                     Row(
                         modifier = Modifier.fillMaxWidth(),
                         horizontalArrangement = Arrangement.SpaceBetween
                     ) {
                         Text(
-                            text = "Crédito: ${user.credito} €",
+                            text = stringResource(R.string.Credito) + ": " + us.credito + "€",
                             modifier = Modifier.padding(top = 12.dp),
-                            color = MaterialTheme.colorScheme.primary
+                            color = MaterialTheme.colorScheme.onSurface
                         )
-//                        IconButton(onClick = {}) {
-//                            Icon(imageVector = Icons.Default.Add, contentDescription = "")
-//                        }
                     }
 
                 }
@@ -145,131 +196,151 @@ fun ProfileScreen(
                 if (isEditing) {
                     Button(
                         onClick = {
-                            if (user != null) {
-                                RetrofitClient.apiService.updateUser(
-                                    user.id_usuario,
-                                    UsuarioRegister(
-                                        nombre = nombre!!,
-                                        apellido = apellido!!,
-                                        email = email!!,
-                                        password = password!!,
-                                        telefono = telefono.toInt()
+                            if (us != null) {
+                               if (allValid){
+                                    userViewModel.updateUser(
+                                        us.id_usuario,
+                                        UsuarioUpdate(
+                                            nombre = nombre!!,
+                                            apellido = apellido!!,
+                                            email = email!!,
+                                            password = password,
+                                            telefono = telefono.toInt(),
+                                            dni = dni!!
+                                        )
                                     )
-                                ).enqueue(object : Callback<Usuario> {
-                                    override fun onResponse(
-                                        call: Call<Usuario>,
-                                        response: Response<Usuario>
-                                    ) {
-                                        if (response.isSuccessful) {
-                                            val updatedUser = response.body()
-                                            if (updatedUser != null) {
-                                                userViewModel.setUser(updatedUser)
-                                            }
-                                            Log.d(
-                                                "Update user",
-                                                "Cambio usuario satisfactorio"
-                                            )
-                                        } else {
-                                            val errorBody = response.errorBody()?.string()
-                                            Log.d(
-                                                "Update user else",
-                                                "Update no hecho: ${response.code()}, $errorBody"
-                                            )
-                                        }
-                                    }
+                                    Toast.makeText(context, "Usuario actualizado", Toast.LENGTH_SHORT).show()
+                                }else{
+                                    Toast.makeText(context, "Completa todos los campos correctamente", Toast.LENGTH_SHORT).show()
+                                    nombre= us.nombre
+                                    apellido = us.apellido
+                                    dni = us.dni
+                                    email = us.email
+                                    password = us.password
+                                    telefono = us.telefono
+                                }
 
-                                    override fun onFailure(call: Call<Usuario>, t: Throwable) {
-                                        Log.d("Update fail", t.message.toString())
-                                    }
-                                })
-                            } else {
-                                Log.d("no actualizado", "no se pudo determinar el id del usuario")
                             }
                             isEditing = false
                         },
                         modifier = Modifier
                             .fillMaxWidth()
-                            .padding(top = 12.dp)
+                            .padding(top = 12.dp),
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = MaterialTheme.colorScheme.primary,
+                            contentColor = MaterialTheme.colorScheme.onPrimary
+                        )
                     ) {
-                        Text("Guardar cambios")
-                    }
-                }
-            }
-        }
-
-        Spacer(modifier = Modifier.height(24.dp))
-
-        Text("Alquileres", fontSize = 22.sp, fontWeight = FontWeight.Bold)
-        if (rents.isEmpty()) {
-            Text(
-                "No tienes alquileres activos",
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(vertical = 8.dp),
-                textAlign = TextAlign.Center,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
-            )
-        } else {
-            LazyColumn(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .heightIn(max = 200.dp)
-            ) {
-
-                items(rents) { alquiler ->
-                    Card(
-                        shape = RoundedCornerShape(12.dp),
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(vertical = 4.dp)
-                    ) {
-                        Text(alquiler.titulo, modifier = Modifier.padding(12.dp))
-                        Text("Vencimiento: \t${alquiler.fecha_fin}", modifier = Modifier.padding(12.dp))
-                    }
-                }
-            }
-        }
-
-        Spacer(modifier = Modifier.height(24.dp))
-
-        Text("Comentarios", fontSize = 22.sp, fontWeight = FontWeight.Bold)
-        if (opinions.isEmpty()) {
-            Text(
-                "Aún no has hecho comentarios",
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(vertical = 8.dp),
-                textAlign = TextAlign.Center,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
-            )
-        } else {
-            Log.d("Opiniones", opinions.toString())
-            LazyColumn(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .heightIn(max = 200.dp)
-            ) {
-                items(opinions) { opi ->
-                    Card(
-                        shape = RoundedCornerShape(12.dp),
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(vertical = 4.dp),
-                        onClick = {navigateToMovie(opi.pelicula_id_pelicula)},
-                        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant)
-                    ) {
-                        Row(horizontalArrangement = Arrangement.SpaceBetween, modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(12.dp)) {
-                            Text(opi.titulo)
-                            Text(opi.fecha)
-                        }
                         Text(
-                            text = opi.comentario,
-                            modifier = Modifier.padding(12.dp)
+                            stringResource(R.string.Guardar_cambios),
+                            color = MaterialTheme.colorScheme.onPrimary
                         )
                     }
                 }
+            }
+        }
+
+        Spacer(modifier = Modifier.height(24.dp))
+
+        Text(
+            stringResource(R.string.Alquileres), fontSize = 22.sp, fontWeight = FontWeight.Bold,
+            color = MaterialTheme.colorScheme.primary
+        )
+        if (rents.isNullOrEmpty()) {
+            Text(
+                stringResource(R.string.No_alquiler),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(vertical = 8.dp),
+                textAlign = TextAlign.Center,
+                color = MaterialTheme.colorScheme.onSurface
+            )
+        } else {
+            LazyColumn(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .heightIn(max = 200.dp)
+            ) {
+                    items(rents!!) { alquiler ->
+                        if (alquiler.estado == "activo") {
+                            Card(
+                                shape = RoundedCornerShape(12.dp),
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(vertical = 4.dp)
+                            ) {
+                                Text(
+                                    alquiler.titulo,
+                                    modifier = Modifier.padding(12.dp),
+                                    color = MaterialTheme.colorScheme.onSurface
+                                )
+                                Text(
+                                    stringResource(R.string.Vencimiento) + ": \t" + toDateString(
+                                        toDate(
+                                            alquiler.fecha_fin
+                                        )
+                                    ),
+                                    modifier = Modifier.padding(12.dp),
+                                    color = MaterialTheme.colorScheme.onSurface
+                                )
+                            }
+                        }
+
+                }
+
+            }
+        }
+
+        Spacer(modifier = Modifier.height(24.dp))
+
+        Text(
+            stringResource(R.string.Comentarios), fontSize = 22.sp, fontWeight = FontWeight.Bold,
+            color = MaterialTheme.colorScheme.primary
+        )
+        if (opinions.isNullOrEmpty()) {
+            Text(
+                stringResource(R.string.No_comentarios),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(vertical = 8.dp),
+                textAlign = TextAlign.Center,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+        } else {
+            LazyColumn(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .heightIn(max = 200.dp)
+            ) {
+                    items(opinions!!) { opi ->
+                        Card(
+                            shape = RoundedCornerShape(12.dp),
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(vertical = 4.dp),
+                            onClick = { navigateToMovie(opi.pelicula_id_pelicula) },
+                            colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant)
+                        ) {
+                            Row(
+                                horizontalArrangement = Arrangement.SpaceBetween, modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(12.dp)
+                            ) {
+                                Text(opi.titulo, color = MaterialTheme.colorScheme.onSurface)
+                                Text(
+                                    toDateString(toDate(opi.fecha)),
+                                    color = MaterialTheme.colorScheme.onSurface
+                                )
+                            }
+                            Text(
+                                text = opi.comentario,
+                                modifier = Modifier.padding(12.dp),
+                                color = MaterialTheme.colorScheme.onSurface
+                            )
+                        }
+                    }
+
+
             }
         }
     }
@@ -283,6 +354,7 @@ fun EditableField(
     isEditing: Boolean,
     keyboardType: KeyboardType = KeyboardType.Text,
     isPassword: Boolean = false,
+    isError: Boolean = false,
     onValueChange: (String) -> Unit
 ) {
     if (isEditing) {
@@ -290,6 +362,7 @@ fun EditableField(
             value = value,
             onValueChange = onValueChange,
             label = { Text(label) },
+            isError = isError,
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(vertical = 6.dp),
@@ -303,8 +376,8 @@ fun EditableField(
                 .padding(vertical = 6.dp),
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
-            Text(label, fontWeight = FontWeight.Medium)
-            Text(value, color = MaterialTheme.colorScheme.primary)
+            Text(label, fontWeight = FontWeight.Medium, color = MaterialTheme.colorScheme.onSurface)
+            Text(value, color = MaterialTheme.colorScheme.onSurface)
         }
     }
 }

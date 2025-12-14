@@ -4,11 +4,16 @@ import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.proyect_final.data.Pelicula
+import com.example.proyect_final.data.RegisterValoracion
+import com.example.proyect_final.data.RentMovie
+import com.example.proyect_final.data.ResponseMessage
 import com.example.proyect_final.data.Usuario
 import com.example.proyect_final.data.Valoracion
+import com.example.proyect_final.network.RetrofitClient
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import java.util.Date
 
 class MovieViewModel : ViewModel(){
 
@@ -21,59 +26,37 @@ class MovieViewModel : ViewModel(){
     private val _users = MutableStateFlow<Map<Int, Usuario>>(emptyMap())
     val users = _users.asStateFlow()
 
-//    fun loadMovie(id: Int){
-//        RetrofitClient.apiService.getMovie(id).enqueue(object : Callback<Pelicula> {
-//            override fun onResponse(
-//                call: Call<Pelicula>,
-//                response: Response<Pelicula>
-//            ) {
-//                if (response.isSuccessful) {
-//                    _movie.value = response.body()
-//                    Log.d("pelicula", movie.toString())
-//                } else {
-//                    Log.d("Pelicula", "Error ${response.message()}")
-//                }
-//            }
-//
-//            override fun onFailure(call: Call<Pelicula>, t: Throwable) {
-//                Log.e("Pelicula", "Error: ${t.message}")
-//            }
-//        })
-//    }
+    private val _delopinion = MutableStateFlow<ResponseMessage?>(null)
+    val delopinion = _delopinion.asStateFlow()
+
+    private val _peliculas = MutableStateFlow<List<Pelicula>?>(emptyList())
+    val peliculas = _peliculas.asStateFlow()
+
+    private val _isLoading = MutableStateFlow(true)
+    val isLoading = _isLoading.asStateFlow()
+
+    private val _errorMessage = MutableStateFlow<String?>(null)
+    val errorMessage = _errorMessage.asStateFlow()
+
+    private val _productRent = MutableStateFlow<Boolean?>(null)
+    val productRent = _productRent.asStateFlow()
+
+    init {
+        getMovies()
+    }
 
     fun loadMovie(id: Int) {
         viewModelScope.launch {
             try {
-                val response = RetrofitClient.apiService.getMovie(id)
+                val response = RetrofitClient.apiService.getProduct(id)
                 if (response.isSuccessful) {
                     _movie.value = response.body()
                 }
             } catch (e: Exception) {
-                Log.e("MovieVM", "Error loading movie: ${e.message}")
+                Log.e("MovieVM producto", "Error loading movie: ${e.message}")
             }
         }
     }
-
-//    fun loadOpinions(id_movie: Int){
-//        RetrofitClient.apiService.getOpinionId(id_movie).enqueue(object : Callback<List<Valoracion>> {
-//            override fun onResponse(
-//                call: Call<List<Valoracion>>,
-//                response: Response<List<Valoracion>>
-//            ) {
-//                if (response.isSuccessful) {
-//                    _opinions.value = response.body() ?: emptyList()
-//                    loadUsersForOpinions()
-//                    Log.d("valoracion", _opinions.toString())
-//                } else {
-//                    Log.d("valoracion else", "Error ${response.message()}")
-//                }
-//            }
-//
-//            override fun onFailure(call: Call<List<Valoracion>>, t: Throwable) {
-//                Log.e("valoracion fallo", "Error: ${t.message}")
-//            }
-//        })
-//    }
 
     fun loadOpinions(peliculaId: Int) {
         viewModelScope.launch {
@@ -82,9 +65,11 @@ class MovieViewModel : ViewModel(){
                 if (response.isSuccessful) {
                     val list = response.body() ?: emptyList()
                     loadUsersForOpinions(list)
+                    Log.d("Carga opiniones", list.toString())
+                    _opinions.value = response.body() ?: emptyList()
                 }
             } catch (e: Exception) {
-                Log.e("MovieVM", "Error loading opinions: ${e.message}")
+                Log.e("MovieVM opinions", "Error loading opinions: ${e.message}")
             }
         }
     }
@@ -159,7 +144,97 @@ class MovieViewModel : ViewModel(){
                     loadOpinions(valoracion.pelicula_id_pelicula)
                 }
             } catch (e: Exception) {
-                Log.e("MovieVM", "Error posting opinion: ${e.message}")
+                Log.e("MovieVM opinion post", "Error posting opinion: ${e.message}")
+            }
+        }
+    }
+
+//    RetrofitClient.apiService.delValoracion(op.id_valoracion)
+//    .enqueue(object : Callback<ResponseMessage> {
+//        override fun onResponse(
+//            call: Call<ResponseMessage>,
+//            response: Response<ResponseMessage>
+//        ) {
+//            if (response.isSuccessful) {
+//                val body = response.body()
+//                if (body != null) {
+//                    Log.d(
+//                        "Valoracion eliminada",
+//                        body.toString()
+//                    )
+//                }
+//            } else {
+//                val body = response.body()
+//                Log.d(
+//                    "Valoracion no eliminada",
+//                    "Error ${response.code()}: $body"
+//                )
+//            }
+//        }
+//
+//        override fun onFailure(
+//            call: Call<ResponseMessage>,
+//            t: Throwable
+//        ) {
+//            Log.d(
+//                "Valoracion",
+//                "no se llego a conectar, ${
+//                    t.stackTrace.get(0)
+//                }"
+//            )
+//        }
+//
+//    })
+
+    fun delOpinion(id_valoracion: Int){
+        viewModelScope.launch {
+            try {
+                val response = RetrofitClient.apiService.delValoracion(id_valoracion)
+                if (response.isSuccessful){
+                    val body = response.body()
+                    if (body != null) {
+                        Log.d("DELETE", "Mensaje: ${body.message}")
+                        _delopinion.value = body
+                    } else {
+                        Log.e("DELETE", "Response.body() es NULL")
+                    }
+                }
+            }catch (e: Exception){
+                Log.d("DelValoracion", "No se pudo borrar el comentario")
+            }
+        }
+    }
+
+    private fun getMovies() {
+        viewModelScope.launch {
+            try {
+                val response = RetrofitClient.apiService.getMovies()
+                if (response.isSuccessful){
+                    _peliculas.value = response.body()
+                    _isLoading.value = false
+                    Log.d("PELIS", "Películas recibidas: ${response.body()?.size}")
+                }
+            } catch (e: Exception) {
+                _errorMessage.value = e.message
+            }
+            _isLoading.value = false
+        }
+    }
+
+    fun rentMovie(date: Date, id_movie: Int, id_user: Int){
+        Log.d("rent ids", "user: $id_user, peli: $id_movie")
+        viewModelScope.launch {
+            try {
+                val response = RetrofitClient.apiService.productRent(RentMovie(date, id_user, id_movie))
+                if (response.isSuccessful){
+                    Log.d("rent", response.errorBody().toString())
+                    _productRent.value = response.isSuccessful
+                }else{
+                    Log.d("rent", response.errorBody().toString())
+                    _productRent.value = false
+                }
+            }catch (e: Exception){
+
             }
         }
     }

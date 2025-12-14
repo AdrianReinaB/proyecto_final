@@ -1,14 +1,19 @@
 package com.example.proyect_final.data
 
+import java.time.LocalDate
+import java.util.Date
+
 data class Usuario(
     val id_usuario: Int = 0,
     val nombre: String = "",
     val apellido: String = "",
+    val dni: String = "",
     val email: String = "",
     val rol: String = "",
-    val credito: Int = 0,
+    val credito: String = "",
     val password: String = "",
-    val telefono: String = ""
+    val telefono: String = "",
+    val activa: Int = 0
 )
 
 data class UsuarioLogin(
@@ -19,7 +24,32 @@ data class UsuarioLogin(
 data class UsuarioRegister(
     val nombre: String = "",
     val apellido: String = "",
+    val dni: String = "",
     val email: String = "",
     val password: String = "",
-    val telefono: Int = 0
+    val telefono: Int = 0,
+)
+
+data class UsuarioUpdate(
+    val nombre: String = "",
+    val apellido: String = "",
+    val dni: String = "",
+    val email: String = "",
+    val password: String = "",
+    val credito: Int = 0,
+    val rol: String = "",
+    val telefono: Int = 0,
+)
+
+data class UsuarioRent(
+    val id_usuario: Int = 0,
+    val nombre: String = "",
+    val dni: String = "",
+    val titulo: String = "",
+    val estado_pr: String = "",
+    val estado_a: String = "",
+    val fecha_fin: String = "",
+    val fecha_inicio: String = "",
+    val id_producto: Int = 0,
+    val id_alquiler: Int =0,
 )

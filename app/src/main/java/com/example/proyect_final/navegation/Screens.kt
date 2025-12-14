@@ -22,3 +22,15 @@ object Profile
 
 @Serializable
 object RentMovies
+
+@Serializable
+object OpinionUser
+
+@Serializable
+object UsersList
+
+@Serializable
+object MoviesList
+
+@Serializable
+object UserListRents

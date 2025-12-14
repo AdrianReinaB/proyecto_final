@@ -1,3 +1,119 @@
 <resources>
-    <string name="app_name">proyect_final</string>
+    <string name="app_name">V-Club</string>
+
+    <!--ListMoivesScreen-->
+    <string name="Buscar_pelicula">Buscar pelicula</string>
+    <string name="Nombre">Nombre</string>
+    <string name="Total">Total</string>
+    <string name="Disponibles">Disponibles</string>
+    <string name="Acciones">Acciones</string>
+    <string name="Info">Info</string>
+    <string name="Editar">Editar</string>
+    <string name="Cantidad">Cantidad</string>
+    <string name="Desactivar">Desactivar</string>
+    <string name="Cerrar">Cerrar</string>
+    <string name="Titulo">Titulo</string>
+    <string name="Anio">Año</string>
+    <string name="Genero">Genero</string>
+    <string name="Sinopsis">Descripcion</string>
+    <string name="Director">Director</string>
+    <string name="Cancelar">Cancelar</string>
+    <string name="Desactivar_pelicula_pregunta">¿Desactivar pelicula?</string>
+    <string name="Desactivar_pelicula_no_alquilar">Esto desactivara la película y no podra ser alquilada.</string>
+    <string name="Aceptar">Aceptar</string>
+    <string name="No_posible_desactivar">No es posible desactivar la pelicula</string>
+    <string name="Borrar_pelicula">Para borrar una pelicula se tiene que tener todas las copias.</string>
+    <string name="Guardar">Guardar</string>
+    <string name="Editar_pelicula">Editar pelicula</string>
+    <string name="Cambiar_productos">Cambiar numero de productos</string>
+    <string name="Modificar_productos">Modificar cantidad total de productos</string>
+    <string name="Cantidad_total">Cantidad total de copias en inventario:</string>
+    <string name="Productos_disponibles">Productos disponibles</string>
+    <string name="Productos_alquilados">Productos alquilados</string>
+
+    <!--UserRentList-->
+    <string name="Buscar_usuario">Buscar usuario</string>
+    <string name="Alquilada">Alquilada</string>
+    <string name="Finalizacion">Finalizacion</string>
+    <string name="Pelicula">Pelicula</string>
+    <string name="Devolver_pelicula">Devolver pelicula</string>
+    <string name="Devolver">Delvolver</string>
+    <string name="Devolver_pelicula_pregunta">¿Devolver pelicula?</string>
+    <string name="Fecha_alquilado">Fecha alquilado</string>
+    <string name="Fecha_vencimiento">Fecha vencimiento</string>
+
+    <!--UsersListScreen-->
+    <string name="Apellido">Apellido</string>
+    <string name="DNI">DNI</string>
+    <string name="Email">Email</string>
+    <string name="Rol">Rol</string>
+    <string name="Credito">Credito</string>
+    <string name="Contrasenia">Contraseña</string>
+    <string name="Telefono">Telefono</string>
+    <string name="Modificar">Modificar</string>
+    <string name="Activar">Activar</string>
+
+    <!--Login--><!--Faltan cosas-->
+    <string name="Login">Login</string>
+    <string name="Entrar">Entrar</string>
+    <string name="Registrarse">Registrarse</string>
+
+    <!--MovieScreen-->
+    <string name="Edad_recomendada">Edad recomendada</string>
+    <string name="Catalogo">Catalogo</string>
+    <string name="Alquilar">Alquilar</string>
+    <string name="Da_opinion">Da tu opinion…</string>
+    <string name="Enviar">Enviar</string>
+    <string name="Comentarios">Comentarios</string>
+    <string name="Comentar">Comentar</string>
+    <string name="Puntuacion">Puntuacion</string>
+    <string name="Fecha_inicio">Fecha de inicio</string>
+    <string name="Fecha_fin">Fecha final</string>
+    <string name="Ninguna">Ninguna</string>
+    <string name="Seleccion_fecha">Seleccionar fecha</string>
+    <string name="Alquilar_pelicula">Alquilar pelicula</string>
+
+    <!--MoviesScreen-->
+    <string name="Cargando">Cargando…</string>
+    <string name="Busqueda_peliculas">Busqueda peliculas</string>
+    <string name="Busqueda_genero">Busqueda genero</string>
+    <string name="Generos">Generos</string>
+    <string name="Sin_genero">Sin genero</string>
+
+    <!--OpinionScreen-->
+
+    <!--ProfileScreen-->
+    <string name="Pefil_usuario">Perfil de usuario</string>
+    <string name="Guardar_cambios">Guardar cambios</string>
+    <string name="Alquileres">Alquileres</string>
+    <string name="No_alquiler">No tienes alquileres activos</string>
+    <string name="Vencimiento">Vencimiento</string>
+    <string name="No_comentarios">Aun no has hecho comentarios</string>
+    <string name="Opiniones">Opiniones</string>
+
+    <!--RegisterScreen-->
+
+    <!--RegisterMovieScreen-->
+    <string name="Titulo_pelicula">Titulo pelicula</string>
+    <string name="Sinopsis_pelicula">Sinopsis pelicula</string>
+    <string name="Director_pelicula">Director pelicula</string>
+    <string name="Genero_pelicula">Genero pelicula</string>
+    <string name="Anio_pelicula">Año pelicula</string>
+    <string name="Edad_pelicula">Edad recomendada pelicula</string>
+    <string name="Registrar_pelicula">Registrar pelicula</string>
+
+    <!--RentMovieScreen-->
+    <string name="Alquiler_activo_bottom">▼ Alquileres activos</string>
+    <string name="Alquiler_activo_rigth">► Alquileres activos</string>
+    <string name="Sin_alquileres">Sin alquileres</string>
+    <string name="Alquiler_vencido_bottom">▼ Alquileres Vencidos</string>
+    <string name="Alquiler_vencido_rigth">► Alquileres Vencidos</string>
+    <string name="Sin_alquiler_vencido">Sin alquileres vencidos</string>
+
+
+
+
+
+
+
 </resources>

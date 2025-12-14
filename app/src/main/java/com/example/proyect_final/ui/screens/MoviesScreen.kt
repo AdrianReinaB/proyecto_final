@@ -27,7 +27,7 @@ import androidx.compose.material3.SearchBarDefaults.TonalElevation
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -36,121 +36,60 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import coil3.compose.AsyncImage
+import com.example.proyect_final.R
 import com.example.proyect_final.data.Pelicula
-import com.example.proyect_final.network.RetrofitClient
-import retrofit2.Call
-import retrofit2.Callback
-import retrofit2.Response
+import com.example.proyect_final.viewModel.MovieViewModel
 
 @Composable
 fun MoviesScreen(
     navigateToMovie: (Int) -> Unit,
     isSearchActive: Boolean,
-    onCloseSearch: () -> Unit
+    onCloseSearch: () -> Unit,
+    movieView: MovieViewModel
 ) {
 
-    var peliculas by remember { mutableStateOf<List<Pelicula>>(emptyList()) }
-    var isLoading by remember { mutableStateOf(true) }
+    val peliculas by movieView.peliculas.collectAsState()
+    val isLoading by movieView.isLoading.collectAsState()
     var query by rememberSaveable { mutableStateOf("") }
     var selectedGenre by remember { mutableStateOf<String?>("") }
 
-    LaunchedEffect(Unit) {
-        RetrofitClient.apiService.getMovies().enqueue(object : Callback<List<Pelicula>> {
-            override fun onResponse(
-                call: Call<List<Pelicula>>,
-                response: Response<List<Pelicula>>
-            ) {
-                if (response.isSuccessful) {
-                    peliculas = response.body() ?: emptyList()
-                } else {
-                    Log.d("Peliculas", "Error ${response.code()}")
-                }
-                isLoading = false
-            }
+    Log.d("peliculas", peliculas.toString())
 
-            override fun onFailure(call: Call<List<Pelicula>>, t: Throwable) {
-                Log.e("Peliculas", "Error: ${t.message}")
-                isLoading = false
-            }
-        })
-    }
-
-    val peliculasFiltradas =
-        if (selectedGenre != "") {
-            peliculas.filter { it.genero.equals(selectedGenre, ignoreCase = true) }
-        } else {
-            peliculas
+    val filterMovies = remember(peliculas, selectedGenre) {
+        if (!selectedGenre.isNullOrEmpty()) {
+            peliculas?.filter { it.genero.equals(selectedGenre, true) } ?: emptyList()
+        } else{
+            peliculas ?: emptyList()
         }
+    }
 
 
     Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
         if (isLoading) {
-            Text(text = "Cargando...")
-            Log.d("Espera", "cargando")
+            Text(text = stringResource(R.string.Cargando), color = MaterialTheme.colorScheme.onSurface)
         } else {
             LazyVerticalGrid(columns = GridCells.Fixed(2), contentPadding = PaddingValues(10.dp)) {
-                items(peliculasFiltradas) { pelicula ->
+                items(filterMovies) { pelicula ->
                     MovieCard(pelicula, { navigateToMovie(pelicula.id_pelicula) })
                 }
-//            item {
-//                ProductCard("nombre peli", "https://th.bing.com/th/id/R.6bfebb09fd003f700f38c1f8da8155f0?rik=QFDbzC9mAqai3g&pid=ImgRaw&r=0")
-//            }
-//            item {
-//                ProductCard("peli", "https://i.pinimg.com/originals/82/d2/5b/82d25b943e9c7a1f9e801f498461d4f6.jpg")
-//            }
-//            item {
-//                ProductCard("peli", "https://www.laguiadelvaron.com/wp-content/uploads/2019/07/portadas-pel%C3%ADculas-iguales-www.laguiadelvaron-15.jpg")
-//            }
-//            item {
-//                ProductCard("nombre peli", "https://th.bing.com/th/id/R.6bfebb09fd003f700f38c1f8da8155f0?rik=QFDbzC9mAqai3g&pid=ImgRaw&r=0")
-//            }
-//            item {
-//                ProductCard("peli", "https://i.pinimg.com/originals/82/d2/5b/82d25b943e9c7a1f9e801f498461d4f6.jpg")
-//            }
-//            item {
-//                ProductCard("peli", "https://www.laguiadelvaron.com/wp-content/uploads/2019/07/portadas-pel%C3%ADculas-iguales-www.laguiadelvaron-15.jpg")
-//            }
-//            item {
-//                ProductCard("nombre peli", "https://th.bing.com/th/id/R.6bfebb09fd003f700f38c1f8da8155f0?rik=QFDbzC9mAqai3g&pid=ImgRaw&r=0")
-//            }
-//            item {
-//                ProductCard("peli", "https://i.pinimg.com/originals/82/d2/5b/82d25b943e9c7a1f9e801f498461d4f6.jpg")
-//            }
-//            item {
-//                ProductCard("peli", "https://www.laguiadelvaron.com/wp-content/uploads/2019/07/portadas-pel%C3%ADculas-iguales-www.laguiadelvaron-15.jpg")
-//            }
-//            item {
-//                ProductCard("nombre peli", "https://th.bing.com/th/id/R.6bfebb09fd003f700f38c1f8da8155f0?rik=QFDbzC9mAqai3g&pid=ImgRaw&r=0")
-//            }
-//            item {
-//                ProductCard("peli", "https://i.pinimg.com/originals/82/d2/5b/82d25b943e9c7a1f9e801f498461d4f6.jpg")
-//            }
-//            item {
-//                ProductCard("peli", "https://www.laguiadelvaron.com/wp-content/uploads/2019/07/portadas-pel%C3%ADculas-iguales-www.laguiadelvaron-15.jpg")
-//            }
-//            item {
-//                ProductCard("nombre peli", "https://th.bing.com/th/id/R.6bfebb09fd003f700f38c1f8da8155f0?rik=QFDbzC9mAqai3g&pid=ImgRaw&r=0")
-//            }
-//            item {
-//                ProductCard("peli", "https://i.pinimg.com/originals/82/d2/5b/82d25b943e9c7a1f9e801f498461d4f6.jpg")
-//            }
-//            item {
-//                ProductCard("peli", "https://www.laguiadelvaron.com/wp-content/uploads/2019/07/portadas-pel%C3%ADculas-iguales-www.laguiadelvaron-15.jpg")
-//            }
             }
         }
-        MoviesContent(
-            isSearchActive = isSearchActive,
-            query = query,
-            onQueryChange = { query = it },
-            onCloseSearch = onCloseSearch,
-            movies = peliculas,
-            onGenreSelected = { selectedGenre = it },
-            navigateToMovie = navigateToMovie
-        )
+        peliculas?.let {
+            MoviesFilter(
+                isSearchActive = isSearchActive,
+                query = query,
+                onQueryChange = { query = it },
+                onCloseSearch = onCloseSearch,
+                movies = it,
+                onGenreSelected = { selectedGenre = it },
+                navigateToMovie = navigateToMovie
+            )
+        }
     }
 }
 
@@ -174,18 +113,16 @@ fun MovieCard(pelis: Pelicula, onClickMovie: () -> Unit) {
             AsyncImage(
                 model = pelis.imagen,
                 contentDescription = "",
-                modifier = Modifier
-                    .size(200.dp)
-                    .padding(5.dp)
+                modifier = Modifier.size(180.dp)
             )
-            Text(pelis.titulo, modifier = Modifier.padding(5.dp), fontWeight = FontWeight.Bold)
+            Text(pelis.titulo, modifier = Modifier.padding(5.dp), overflow = TextOverflow.Ellipsis , fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.onSurface)
         }
     }
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun MoviesContent(
+fun MoviesFilter(
     isSearchActive: Boolean,
     query: String,
     onQueryChange: (String) -> Unit,
@@ -198,9 +135,9 @@ fun MoviesContent(
     val filteredMovies = movies.filter {
         it.titulo.contains(query, ignoreCase = true)
     }
-    val filteredMoviesGenrer = movies.filter {
-        it.genero.contains(it.genero)
-    }.distinctBy { it.genero }
+    val filteredMoviesGenrer = remember(movies) {
+        movies.distinctBy { it.genero }
+    }
 
     Box(modifier = Modifier.fillMaxSize()) {
         if (isSearchActive) {
@@ -215,10 +152,12 @@ fun MoviesContent(
                 ) {
                     TextButton(onClick = {
                         searchMovies = true
-                    }) { Text("Busqueda peliculas") }
+                    }) { Text(stringResource(R.string.Busqueda_peliculas), color = MaterialTheme.colorScheme.primary,
+                        fontWeight = FontWeight.Bold) }
                     TextButton(onClick = {
                         searchMovies = false
-                    }) { Text("Busqueda por genero") }
+                    }) { Text(stringResource(R.string.Busqueda_genero), color = MaterialTheme.colorScheme.secondary,
+                        fontWeight = FontWeight.Bold) }
                 }
                 if (searchMovies) {
                     SearchBar(
@@ -229,9 +168,8 @@ fun MoviesContent(
                         onActiveChange = { active ->
                             if (!active) onCloseSearch()
                         },
-                        placeholder = { Text("Buscar película...") },
+                        placeholder = { Text(stringResource(R.string.Buscar_pelicula), color = MaterialTheme.colorScheme.onSurface) },
                         modifier = Modifier
-                            .padding(8.dp)
                             .fillMaxWidth(),
                         tonalElevation = TonalElevation,
                     ) {
@@ -243,7 +181,7 @@ fun MoviesContent(
                                     .clickable {
                                         navigateToMovie(peli.id_pelicula)
                                         onCloseSearch()
-                                    }
+                                    }, color = MaterialTheme.colorScheme.onSurface
                             )
                         }
                     }
@@ -258,17 +196,19 @@ fun MoviesContent(
                             horizontalAlignment = Alignment.CenterHorizontally
                         ) {
                             item {
-                                Text("Generos", modifier = Modifier.padding(10.dp))
-                                HorizontalDivider()
+                                Text(stringResource(R.string.Generos), modifier = Modifier.padding(10.dp), color = MaterialTheme.colorScheme.onSurface)
+                                HorizontalDivider(color = MaterialTheme.colorScheme.outline)
+
                             }
                             item {
-                                Text("Sin genero", modifier = Modifier
-                                    .padding(10.dp)
-                                    .clickable {
-                                        onGenreSelected("")
-                                        onCloseSearch()
-                                        searchMovies = true
-                                    })
+                                Text(
+                                    stringResource(R.string.Sin_genero), modifier = Modifier
+                                        .padding(10.dp)
+                                        .clickable {
+                                            onGenreSelected("")
+                                            onCloseSearch()
+                                            searchMovies = true
+                                        }, color = MaterialTheme.colorScheme.onSurface)
                             }
                             items(filteredMoviesGenrer) {
                                 Text(it.genero, modifier = Modifier
@@ -277,7 +217,7 @@ fun MoviesContent(
                                         onGenreSelected(it.genero)
                                         onCloseSearch()
                                         searchMovies = true
-                                    })
+                                    }, color = MaterialTheme.colorScheme.onSurface)
                             }
                         }
                     }
